@@ -1,0 +1,39 @@
+name: SonarCloud Node.js Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd node-service
+          npm ci
+
+      - name: Run tests with coverage
+        run: |
+          cd node-service
+          npm test
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.projectKey=md-sadidtahsin_cap-test
+            -Dsonar.organization=md-sadidtahsin
+            -Dsonar.sources=node-service
+            -Dsonar.javascript.lcov.reportPaths=node-service/coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

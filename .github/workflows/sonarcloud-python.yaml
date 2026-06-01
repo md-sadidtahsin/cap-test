@@ -32,12 +32,12 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
-            -Dsonar.projectKey=md-sadidtahsin_python-service
+            -Dsonar.projectKey=md-sadidtahsin_cap-test
             -Dsonar.organization=md-sadidtahsin
-            -Dsonar.sources=.
-            -Dsonar.tests=tests
-            -Dsonar.exclusions=coverage/**,**/__pycache__/**,**/.pytest_cache/**
-            -Dsonar.python.coverage.reportPaths=coverage/coverage.xml
+            -Dsonar.sources=python-service
+            -Dsonar.tests=python-service/tests
+            -Dsonar.exclusions=python-service/coverage/**,python-service/**/__pycache__/**,python-service/**/.pytest_cache/**
+            -Dsonar.python.coverage.reportPaths=python-service/coverage/coverage.xml
             -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

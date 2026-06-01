@@ -4,7 +4,7 @@ metadata:
   name: app-config
   namespace: urlshortener
 data:
-  BASE_URL: "http://a38fcf38ea0a74014a81e0e31dd79b3d-ec2e4782f5e02acf.elb.ap-south-1.amazonaws.com"
+  BASE_URL: "http://a062a137ecba74a07834ff5eec2c84c4-a7f1e0f5b0040820.elb.ap-south-1.amazonaws.com"
   REDIS_HOST: "redis-service"
   REDIS_PORT: "6379"
   GO_SERVICE_URL: "http://go-service:8000"

@@ -18,15 +18,15 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
+        working-directory: python-service
         run: |
-          cd python-service
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          python -m pip install -r requirements-dev.txt
 
       - name: Run tests with coverage
+        working-directory: python-service
         run: |
-          cd python-service
-          pytest --cov=app --cov-report=xml:coverage/coverage.xml tests
+          python -m pytest --cov=app --cov-report=xml:coverage/coverage.xml tests
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -34,10 +34,10 @@ jobs:
           args: >
             -Dsonar.projectKey=md-sadidtahsin_python-service
             -Dsonar.organization=md-sadidtahsin
-            -Dsonar.sources=python-service
-            -Dsonar.tests=python-service/tests
-            -Dsonar.exclusions=python-service/coverage/**,python-service/**/__pycache__/**,python-service/**/.pytest_cache/**
-            -Dsonar.python.coverage.reportPaths=python-service/coverage/coverage.xml
+            -Dsonar.sources=.
+            -Dsonar.tests=tests
+            -Dsonar.exclusions=coverage/**,**/__pycache__/**,**/.pytest_cache/**
+            -Dsonar.python.coverage.reportPaths=coverage/coverage.xml
             -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

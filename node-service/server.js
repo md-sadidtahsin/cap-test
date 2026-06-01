@@ -5,8 +5,8 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
-const DATABASE = './node.db';
+const PORT = process.env.PORT || 3000;
+const DATABASE = process.env.DATABASE || './node.db';
 
 // Middleware
 app.use(cors());
@@ -96,12 +96,16 @@ async function fetchUrlMetadata(url) {
         if (!faviconUrl) {
             const urlObj = new URL(url);
             faviconUrl = `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`;
+        } else if (faviconUrl.startsWith('//')) {
+            // Protocol-relative URL
+            const urlObj = new URL(url);
+            faviconUrl = `${urlObj.protocol}${faviconUrl}`;
         } else if (faviconUrl.startsWith('/')) {
-            // Convert relative URL to absolute
+            // Convert root-relative URL to absolute
             const urlObj = new URL(url);
             faviconUrl = `${urlObj.protocol}//${urlObj.hostname}${faviconUrl}`;
         } else if (!faviconUrl.startsWith('http')) {
-            // Handle protocol-relative URLs
+            // Convert relative URL to absolute
             const urlObj = new URL(url);
             faviconUrl = `${urlObj.protocol}//${urlObj.hostname}/${faviconUrl}`;
         }
@@ -201,20 +205,25 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Node.js Metadata Service running on http://localhost:${PORT}`);
-    console.log(`📊 Database: ${DATABASE}`);
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\nShutting down gracefully...');
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing database:', err);
-        }
-        process.exit(0);
+if (require.main === module) {
+    const server = app.listen(PORT, () => {
+        console.log(`🚀 Node.js Metadata Service running on http://localhost:${PORT}`);
+        console.log(`📊 Database: ${DATABASE}`);
     });
-});
+
+    // Graceful shutdown
+    process.on('SIGINT', () => {
+        console.log('\nShutting down gracefully...');
+        server.close(() => {
+            db.close((err) => {
+                if (err) {
+                    console.error('Error closing database:', err);
+                }
+                process.exit(0);
+            });
+        });
+    });
+}
+
+module.exports = { app, db, fetchUrlMetadata };
 

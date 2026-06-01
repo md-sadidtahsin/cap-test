@@ -38,6 +38,15 @@ def test_dashboard_route_returns_html(client):
     assert b'<html' in response.data or b'<!doctype html>' in response.data
 
 
+def test_health_route_returns_json(client):
+    response = client.get('/health')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['status'] == 'healthy'
+    assert data['service'] == 'python-metadata-service'
+    assert 'timestamp' in data
+
+
 def test_create_short_url_success_stores_metadata(client):
     go_response = MagicMock(status_code=200)
     go_response.json.return_value = {'short_code': 'abc123'}

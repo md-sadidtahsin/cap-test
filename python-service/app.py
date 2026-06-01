@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 import os
 import redis
@@ -320,6 +320,16 @@ def get_stats():
             "all_urls": all_urls,
         }
     )
+
+@app.route('/health')
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "service": "python-metadata-service",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
+    
 
 
 if __name__ == "__main__":

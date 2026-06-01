@@ -133,15 +133,10 @@ func createShortURL(c *gin.Context) {
 		return
 	}
 
-	// response := ShortenResponse{
-	// 	ShortCode: shortCode,
-    // 	ShortURL:  baseURL + "/api/go/" + shortCode,  // ✅ Now configurable!
-    // 	LongURL:   req.LongURL,
-	// }
 	response := ShortenResponse{
 		ShortCode: shortCode,
-		ShortURL: "http://localhost:8000/" + shortCode,
-		LongURL: req.LongURL,
+    	ShortURL:  baseURL + "/api/go/" + shortCode,  // ✅ Now configurable!
+    	LongURL:   req.LongURL,
 	}
 
 	log.Printf("Created short URL: %s -> %s", shortCode, req.LongURL)
@@ -245,18 +240,25 @@ func sendClickEventHTTP(shortCode string) {
 }
 
 func main() {
-	initURL()
+	r := startApp()
+	defer func() {
+		if db != nil {
+			db.Close()
+		}
+		if rdb != nil {
+			rdb.Close()
+		}
+	}()
 
-	initDB()
-	defer db.Close()
-
-	initRedis()
-	if rdb != nil {
-		defer rdb.Close()
-	}
-	r := setupRouter()
 	log.Println("Go service starting on :8000")
 	r.Run(":8000")
+}
+
+func startApp() *gin.Engine {
+	initURL()
+	initDB()
+	initRedis()
+	return setupRouter()
 }
 
 // setupRouter builds and returns the Gin router with middleware and routes.

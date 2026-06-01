@@ -230,9 +230,9 @@ jobs:
     - name: Inject Exact Image Tags into Manifests
       run: |
         # Replace placeholder/latest tags with the exact commit SHA from build step
-        sed -i "s|image: .*go-urlshortener:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/go-urlshortener:${{ github.sha }}|g" k8s/go-deployment.yaml
-        sed -i "s|image: .*python-urlshortener:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/python-urlshortener:${{ github.sha }}|g" k8s/python-deployment.yaml
-        sed -i "s|image: .*node-urlshortener:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/node-urlshortener:${{ github.sha }}|g" k8s/node-deployment.yaml
+        sed -i "s|image: .*go-urlshortener:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/go-urlshortener:latest|g" k8s/go-deployment.yaml
+        sed -i "s|image: .*python-urlshortener:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/python-urlshortener:latest|g" k8s/python-deployment.yaml
+        sed -i "s|image: .*node-urlshortener:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/node-urlshortener:latest|g" k8s/node-deployment.yaml
 
     - name: Apply Redis & Services (ClusterIP)
       run: |
@@ -257,9 +257,9 @@ jobs:
 
     - name: Wait for Healthy Rollout
       run: |
-        kubectl rollout status deployment/go-service -n urlshortener --timeout=300s
-        kubectl rollout status deployment/python-service -n urlshortener --timeout=300s
-        kubectl rollout status deployment/node-service -n urlshortener --timeout=300s
+        kubectl rollout status deployment/go-service -n urlshortener --timeout=120s
+        kubectl rollout status deployment/python-service -n urlshortener --timeout=120s
+        kubectl rollout status deployment/node-service -n urlshortener --timeout=120s
         echo "✅ All deployments successfully rolled out."
 
     - name: Verify & Output Application URL

@@ -34,6 +34,9 @@ jobs:
             -Dsonar.projectKey=md-sadidtahsin_cap-test
             -Dsonar.organization=md-sadidtahsin
             -Dsonar.sources=node-service
+            -Dsonar.tests=node-service/__tests__
+            -Dsonar.exclusions=node-service/coverage/**
             -Dsonar.javascript.lcov.reportPaths=node-service/coverage/lcov.info
+            -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

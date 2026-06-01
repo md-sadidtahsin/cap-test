@@ -184,7 +184,7 @@ func redirect(c *gin.Context) {
 	c.Redirect(http.StatusMovedPermanently, longURL)
 }
 
-var publishClickEvent = func(shortCode string) {
+func publishClickEvent(shortCode string) {
 	event := ClickEvent{
 		ShortCode: shortCode,
 		ClickedAt: time.Now().Format(time.RFC3339),

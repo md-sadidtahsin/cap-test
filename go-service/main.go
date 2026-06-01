@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -41,7 +41,7 @@ type ClickEvent struct {
 
 func initDB() {
 	var err error
-	db, err = sql.Open("sqlite3", "./go.db")
+	db, err = sql.Open("sqlite", "./go.db")
 	if err != nil {
 		log.Fatal(err)
 	}

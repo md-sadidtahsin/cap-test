@@ -1,0 +1,45 @@
+name: SonarCloud Go Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Install dependencies
+        working-directory: go-service
+        run: |
+          go mod download
+
+      - name: Run tests with coverage
+        working-directory: go-service
+        env:
+          CGO_ENABLED: 0
+        run: |
+          go test ./... -coverprofile=coverage.out
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.projectKey=md-sadidtahsin_cap-test
+            -Dsonar.organization=md-sadidtahsin
+            -Dsonar.sources=go-service
+            -Dsonar.tests=go-service
+            -Dsonar.test.inclusions=**/*_test.go
+            -Dsonar.exclusions=coverage.out
+            -Dsonar.go.coverage.reportPaths=coverage.out
+            -Dsonar.qualitygate.wait=true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

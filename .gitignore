@@ -4,7 +4,7 @@ python.db
 node.db
 
 # GO
-go.sum
+# go.sum
 
 # Python
 venv/
@@ -20,3 +20,6 @@ node-service/coverage/
 python-service/coverage/
 python-service/__pycache__/
 python-service/.pytest_cache/
+
+# Go
+go-service/coverage.out

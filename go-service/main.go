@@ -20,6 +20,7 @@ import (
 var db *sql.DB
 var rdb *redis.Client
 var ctx = context.Background()
+var baseURL string
 
 // pythonServiceURL can be overridden by PYTHON_SERVICE_URL environment variable (kept for backward compatibility)
 var pythonServiceURL = getEnv("PYTHON_SERVICE_URL", "http://localhost:5000")
@@ -37,6 +38,13 @@ type ShortenResponse struct {
 type ClickEvent struct {
 	ShortCode string `json:"short_code"`
 	ClickedAt string `json:"clicked_at"`
+}
+
+func initURL() {
+    baseURL = os.Getenv("BASE_URL")
+    if baseURL == "" {
+        baseURL = "http://localhost:8000" // fallback for local dev
+    }
 }
 
 func initDB() {
@@ -176,7 +184,7 @@ func redirect(c *gin.Context) {
 	c.Redirect(http.StatusMovedPermanently, longURL)
 }
 
-func publishClickEvent(shortCode string) {
+var publishClickEvent = func(shortCode string) {
 	event := ClickEvent{
 		ShortCode: shortCode,
 		ClickedAt: time.Now().Format(time.RFC3339),
@@ -232,6 +240,8 @@ func sendClickEventHTTP(shortCode string) {
 }
 
 func main() {
+	initURL()
+
 	initDB()
 	defer db.Close()
 
@@ -265,6 +275,18 @@ func setupRouter() *gin.Engine {
 	// Routes
 	r.POST("/api/shorten", createShortURL)
 	r.GET("/:code", redirect)
+
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "Go service root"})
+	})
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "healthy",
+			"service":   "go-shortener-service",
+			"timestamp": time.Now().Format(time.RFC3339),
+		})
+	})
 
 	return r
 }

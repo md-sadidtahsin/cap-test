@@ -448,3 +448,47 @@ func TestCreateShortURLRegeneratesOnCollision(t *testing.T) {
         t.Fatalf("expected uniq01, got %s", resp.ShortCode)
     }
 }
+
+func TestRootEndpoint(t *testing.T) {
+    router := setupRouter()
+
+    req := httptest.NewRequest(http.MethodGet, "/", nil)
+    w := httptest.NewRecorder()
+    router.ServeHTTP(w, req)
+
+    if w.Code != http.StatusOK {
+        t.Fatalf("expected 200 for /, got %d", w.Code)
+    }
+
+    var body map[string]interface{}
+    if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+        t.Fatal(err)
+    }
+    msg, ok := body["message"].(string)
+    if !ok || msg != "Go service root" {
+        t.Fatalf("unexpected root message: %v", body)
+    }
+}
+
+func TestHealthEndpoint(t *testing.T) {
+    router := setupRouter()
+
+    req := httptest.NewRequest(http.MethodGet, "/health", nil)
+    w := httptest.NewRecorder()
+    router.ServeHTTP(w, req)
+
+    if w.Code != http.StatusOK {
+        t.Fatalf("expected 200 for /health, got %d", w.Code)
+    }
+
+    var body map[string]interface{}
+    if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+        t.Fatal(err)
+    }
+    if status, ok := body["status"].(string); !ok || status != "healthy" {
+        t.Fatalf("unexpected health status: %v", body)
+    }
+    if svc, ok := body["service"].(string); !ok || svc != "go-shortener-service" {
+        t.Fatalf("unexpected service name: %v", body)
+    }
+}

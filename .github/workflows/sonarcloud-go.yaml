@@ -33,13 +33,9 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
+            -Dproject.settings=go-service/sonar-project.properties
             -Dsonar.projectKey=md-sadidtahsin_cap-test
             -Dsonar.organization=md-sadidtahsin
-            -Dsonar.sources=go-service
-            -Dsonar.tests=go-service
-            -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.exclusions=coverage.out
-            -Dsonar.go.coverage.reportPaths=coverage.out
             -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

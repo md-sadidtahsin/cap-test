@@ -449,6 +449,60 @@ func TestCreateShortURLRegeneratesOnCollision(t *testing.T) {
     }
 }
 
+func TestInitURLSetsBase(t *testing.T) {
+    prev := os.Getenv("BASE_URL")
+    os.Setenv("BASE_URL", "https://example.test")
+    defer func() { os.Setenv("BASE_URL", prev) }()
+
+    initURL()
+    if baseURL != "https://example.test" {
+        t.Fatalf("expected baseURL to be set from env, got %s", baseURL)
+    }
+}
+
+func TestStartAppInitializesRouter(t *testing.T) {
+    // ensure we use in-memory DB and no redis
+    prevDB := os.Getenv("DB_PATH")
+    prevRedis := os.Getenv("REDIS_URL")
+    os.Setenv("DB_PATH", ":memory:")
+    os.Setenv("REDIS_URL", "127.0.0.1:59999")
+    defer func() {
+        os.Setenv("DB_PATH", prevDB)
+        os.Setenv("REDIS_URL", prevRedis)
+    }()
+
+    // call startApp which initializes db, redis (will likely set rdb=nil) and router
+    router := startApp()
+    if router == nil {
+        t.Fatal("expected router, got nil")
+    }
+
+    // exercise root and health endpoints
+    req := httptest.NewRequest(http.MethodGet, "/", nil)
+    w := httptest.NewRecorder()
+    router.ServeHTTP(w, req)
+    if w.Code != http.StatusOK {
+        t.Fatalf("expected 200 for /, got %d", w.Code)
+    }
+
+    req = httptest.NewRequest(http.MethodGet, "/health", nil)
+    w = httptest.NewRecorder()
+    router.ServeHTTP(w, req)
+    if w.Code != http.StatusOK {
+        t.Fatalf("expected 200 for /health, got %d", w.Code)
+    }
+
+    // cleanup db if created
+    if db != nil {
+        db.Close()
+        db = nil
+    }
+    if rdb != nil {
+        rdb.Close()
+        rdb = nil
+    }
+}
+
 func TestRootEndpoint(t *testing.T) {
     router := setupRouter()
 

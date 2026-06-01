@@ -49,7 +49,8 @@ func initURL() {
 
 func initDB() {
 	var err error
-	db, err = sql.Open("sqlite", "./go.db")
+	dbPath := getEnv("DB_PATH", "./go.db")
+	db, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -240,18 +241,26 @@ func sendClickEventHTTP(shortCode string) {
 }
 
 func main() {
-	initURL()
+	r := startApp()
+	defer func() {
+		if db != nil {
+			db.Close()
+		}
+		if rdb != nil {
+			rdb.Close()
+		}
+	}()
 
-	initDB()
-	defer db.Close()
-
-	initRedis()
-	if rdb != nil {
-		defer rdb.Close()
-	}
-	r := setupRouter()
 	log.Println("Go service starting on :8000")
 	r.Run(":8000")
+}
+
+// startApp initializes services and returns the Gin router without starting the HTTP listener.
+func startApp() *gin.Engine {
+	initURL()
+	initDB()
+	initRedis()
+	return setupRouter()
 }
 
 // setupRouter builds and returns the Gin router with middleware and routes.

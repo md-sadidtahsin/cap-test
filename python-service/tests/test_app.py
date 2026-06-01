@@ -1,3 +1,4 @@
+import importlib
 import os
 import tempfile
 from datetime import datetime
@@ -11,6 +12,7 @@ db_fd, db_path = tempfile.mkstemp(suffix='.db')
 os.close(db_fd)
 os.environ['DATABASE'] = db_path
 
+import app as app_module
 from app import app, get_db, init_db
 
 
@@ -127,3 +129,41 @@ def test_get_stats_returns_counts(client):
     assert data['total_clicks'] == 1
     assert isinstance(data['top_urls'], list)
     assert isinstance(data['all_urls'], list)
+
+
+def test_create_short_url_node_service_error_stores_failed_metadata(client):
+    go_response = MagicMock(status_code=200)
+    go_response.json.return_value = {'short_code': 'abc123'}
+    node_response = MagicMock(status_code=500)
+
+    with patch('app.requests.post', side_effect=[go_response, node_response]):
+        response = client.post('/create', data={'long_url': 'http://example.com'})
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload['metadata']['status'] == 'unavailable'
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT metadata_status FROM url_metadata WHERE short_code = ?', ('abc123',))
+    row = cursor.fetchone()
+    conn.close()
+
+    assert row['metadata_status'] == 'failed'
+
+
+def test_init_redis_success(monkeypatch):
+    mock_redis = MagicMock()
+    mock_client = MagicMock()
+    mock_redis.return_value = mock_client
+    mock_thread = MagicMock()
+    mock_thread.start = MagicMock()
+
+    monkeypatch.setattr(app_module, 'redis', MagicMock(Redis=mock_redis))
+    monkeypatch.setattr(app_module, 'threading', MagicMock(Thread=lambda *args, **kwargs: mock_thread))
+
+    app_module.init_redis()
+
+    mock_redis.assert_called_once()
+    mock_client.ping.assert_called_once()
+    mock_thread.start.assert_called_once()

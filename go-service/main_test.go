@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
     "database/sql"
     "encoding/json"
     "net/http"
@@ -13,6 +14,7 @@ import (
     _ "modernc.org/sqlite"
     "github.com/alicebob/miniredis/v2"
     "github.com/redis/go-redis/v9"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupTestDB(t *testing.T) {
@@ -460,18 +462,6 @@ func TestInitURLSetsBase(t *testing.T) {
     }
 }
 
-func TestSetupRouter(t *testing.T) {
-    gin.SetMode(gin.TestMode)
-    r := setupRouter()
-
-    // Health check endpoint should exist
-    req := httptest.NewRequest("GET", "/health", nil)
-    w := httptest.NewRecorder()
-    r.ServeHTTP(w, req)
-
-    assert.Equal(t, http.StatusOK, w.Code)
-    assert.Contains(t, w.Body.String(), "healthy")
-}
 
 func TestRootEndpoint(t *testing.T) {
     router := setupRouter()
@@ -493,6 +483,19 @@ func TestRootEndpoint(t *testing.T) {
         t.Fatalf("unexpected root message: %v", body)
     }
 }
+
+func TestSetupRouterHealth(t *testing.T) {
+    gin.SetMode(gin.TestMode)
+    r := setupRouter()
+
+    req := httptest.NewRequest("GET", "/health", nil)
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+    assert.Contains(t, w.Body.String(), "healthy")
+}
+
 
 func TestHealthEndpoint(t *testing.T) {
     router := setupRouter()

@@ -32,7 +32,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
-            -Dsonar.projectKey=md-sadidtahsin_python-service
+            -Dsonar.projectKey=md-sadidtahsin_cap-test
             -Dsonar.organization=md-sadidtahsin
             -Dsonar.sources=python-service
             -Dsonar.tests=python-service/tests

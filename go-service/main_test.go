@@ -460,7 +460,18 @@ func TestInitURLSetsBase(t *testing.T) {
     }
 }
 
+func TestSetupRouter(t *testing.T) {
+    gin.SetMode(gin.TestMode)
+    r := setupRouter()
 
+    // Health check endpoint should exist
+    req := httptest.NewRequest("GET", "/health", nil)
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+    assert.Contains(t, w.Body.String(), "healthy")
+}
 
 func TestRootEndpoint(t *testing.T) {
     router := setupRouter()

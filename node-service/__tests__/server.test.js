@@ -122,6 +122,42 @@ test('GET /api/metadata returns 500 when database all errors', async () => {
   db.all = originalAll;
 });
 
+test('POST /api/metadata returns 500 when database insert fails', async () => {
+  const html = '<html><head><title>Test Page</title><meta name="description" content="Desc"></head><body></body></html>';
+  axios.get.mockResolvedValue({ data: html });
+
+  const originalRun = db.run;
+  db.run = jest.fn((sql, params, callback) => callback(new Error('DB insert failed')));
+
+  const res = await request(app)
+    .post('/api/metadata')
+    .send({ short_code: 'abc123', long_url: 'http://example.com' })
+    .set('Accept', 'application/json');
+
+  expect(res.status).toBe(500);
+  expect(res.body).toEqual({ error: 'Failed to store metadata' });
+
+  db.run = originalRun;
+});
+
+test('fetchUrlMetadata falls back to default title when no title is present', async () => {
+  axios.get.mockResolvedValue({ data: '<html><head></head><body></body></html>' });
+  const metadata = await fetchUrlMetadata('http://example.com');
+
+  expect(metadata.title).toBe('No title found');
+  expect(metadata.description).toBe('No description available');
+  expect(metadata.favicon_url).toBe('http://example.com/favicon.ico');
+});
+
+test('fetchUrlMetadata falls back to default description when no description is present', async () => {
+  axios.get.mockResolvedValue({ data: '<html><head><title>Title</title></head><body></body></html>' });
+  const metadata = await fetchUrlMetadata('http://example.com');
+
+  expect(metadata.title).toBe('Title');
+  expect(metadata.description).toBe('No description available');
+  expect(metadata.favicon_url).toBe('http://example.com/favicon.ico');
+});
+
 test('fetchUrlMetadata returns fallback on axios failure', async () => {
   axios.get.mockRejectedValue(new Error('Network failure'));
   const metadata = await fetchUrlMetadata('http://example.com');

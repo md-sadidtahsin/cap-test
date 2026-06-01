@@ -23,3 +23,4 @@ python-service/.pytest_cache/
 
 # Go
 go-service/coverage.out
+load-test/results.json

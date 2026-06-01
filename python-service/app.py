@@ -141,7 +141,7 @@ def get_db():
     return conn
 
 
-@app.route("/")
+@app.route("/", methods=['GET'])
 def dashboard():
     """Main dashboard page"""
     return render_template("dashboard.html")
@@ -226,7 +226,7 @@ def create_short_url():
             )
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"Error calling Go service: {e}")
+        logging.exception(f"Error calling Go service: {e}")
         return jsonify({"error": "Go service unavailable"}), 503
 
 

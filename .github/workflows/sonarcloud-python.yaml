@@ -36,7 +36,7 @@ jobs:
             -Dsonar.organization=md-sadidtahsin
             -Dsonar.sources=python-service
             -Dsonar.tests=python-service/tests
-            -Dsonar.exclusions=python-service/tests/**,python-service/coverage/**,python-service/**/__pycache__/**,python-service/**/.pytest_cache/**
+            -Dsonar.exclusions=python-service/tests/**,python-service/coverage/**,python-service/templates/**,python-service/**/__pycache__/**,python-service/**/.pytest_cache/**
             -Dsonar.python.coverage.reportPaths=python-service/coverage/coverage.xml
             -Dsonar.qualitygate.wait=true
         env:

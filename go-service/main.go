@@ -240,25 +240,18 @@ func sendClickEventHTTP(shortCode string) {
 }
 
 func main() {
-	r := startApp()
-	defer func() {
-		if db != nil {
-			db.Close()
-		}
-		if rdb != nil {
-			rdb.Close()
-		}
-	}()
+	initURL()
 
+	initDB()
+	defer db.Close()
+
+	initRedis()
+	if rdb != nil {
+		defer rdb.Close()
+	}
+	r := setupRouter()
 	log.Println("Go service starting on :8000")
 	r.Run(":8000")
-}
-
-func startApp() *gin.Engine {
-	initURL()
-	initDB()
-	initRedis()
-	return setupRouter()
 }
 
 // setupRouter builds and returns the Gin router with middleware and routes.

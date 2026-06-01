@@ -57,9 +57,9 @@ def redis_subscriber():
                     event_data = json.loads(message["data"])
                     process_click_event(event_data)
                 except Exception as e:
-                    logging.error(f"Error processing Redis event: {e}")
+                    logging.error(f"Error processing Redis event:")
     except Exception as e:
-        logging.error(f"Redis subscriber error: {e}")
+        logging.error(f"Redis subscriber error:")
 
 
 def process_click_event(data):

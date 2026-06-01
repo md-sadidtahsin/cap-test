@@ -133,10 +133,15 @@ func createShortURL(c *gin.Context) {
 		return
 	}
 
+	// response := ShortenResponse{
+	// 	ShortCode: shortCode,
+    // 	ShortURL:  baseURL + "/api/go/" + shortCode,  // ✅ Now configurable!
+    // 	LongURL:   req.LongURL,
+	// }
 	response := ShortenResponse{
 		ShortCode: shortCode,
-    	ShortURL:  baseURL + "/api/go/" + shortCode,  // ✅ Now configurable!
-    	LongURL:   req.LongURL,
+		ShortURL: "http://localhost:8000/" + shortCode,
+		LongURL: req.LongURL,
 	}
 
 	log.Printf("Created short URL: %s -> %s", shortCode, req.LongURL)

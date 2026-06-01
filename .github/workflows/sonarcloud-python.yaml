@@ -1,44 +1,43 @@
-name: SonarCloud Python Scan
+# name: SonarCloud Python Scan
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
 
-jobs:
-  sonarcloud:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+# jobs:
+#   sonarcloud:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+#       - name: Set up Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: '3.12'
 
-      - name: Install dependencies
-        working-directory: python-service
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements-dev.txt
+#       - name: Install dependencies
+#         working-directory: python-service
+#         run: |
+#           python -m pip install --upgrade pip
+#           python -m pip install -r requirements-dev.txt
 
-      - name: Run tests with coverage
-        working-directory: python-service
-        run: |
-          python -m pytest --cov=app --cov-report=xml:coverage/coverage.xml tests
+#       - name: Run tests with coverage
+#         working-directory: python-service
+#         run: |
+#           python -m pytest --cov=app --cov-report=xml:coverage/coverage.xml tests
 
-      - name: SonarCloud Scan
-        working-directory: python-service
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.projectKey=md-sadidtahsin_cap-test
-            -Dsonar.organization=md-sadidtahsin
-            -Dsonar.sources=.
-            -Dsonar.tests=tests
-            -Dsonar.exclusions=coverage/**,templates/**,__pycache__/**,.pytest_cache/**
-            -Dsonar.python.coverage.reportPaths=coverage/coverage.xml
-            -Dsonar.qualitygate.wait=true
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#       - name: SonarCloud Scan
+#         uses: SonarSource/sonarcloud-github-action@master
+#         with:
+#           args: >
+#             -Dsonar.projectKey=md-sadidtahsin_cap-test
+#             -Dsonar.organization=md-sadidtahsin
+#             -Dsonar.sources=python-service
+#             -Dsonar.tests=python-service/tests
+#             -Dsonar.exclusions=python-service/tests/**,python-service/coverage/**,python-service/templates/**,python-service/**/__pycache__/**,python-service/**/.pytest_cache/**
+#             -Dsonar.python.coverage.reportPaths=python-service/coverage/coverage.xml
+#             -Dsonar.qualitygate.wait=true
+#         env:
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

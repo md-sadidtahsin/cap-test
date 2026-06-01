@@ -9,6 +9,7 @@ on:
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -17,15 +18,10 @@ jobs:
         with:
           go-version: '1.24'
 
-      - name: Install dependencies
-        working-directory: go-service
-        run: |
-          go mod download
-
-      - name: Run tests with coverage
+      - name: Run Go tests with coverage
         working-directory: go-service
         env:
-          CGO_ENABLED: 0
+          CGO_ENABLED: '0'
         run: |
           go test ./... -coverprofile=coverage.out
 
@@ -34,8 +30,6 @@ jobs:
         with:
           args: >
             -Dproject.settings=go-service/sonar-project.properties
-            -Dsonar.projectKey=md-sadidtahsin_cap-test
-            -Dsonar.organization=md-sadidtahsin
             -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

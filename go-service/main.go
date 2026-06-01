@@ -87,7 +87,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-func generateShortCode() string {
+var generateShortCode = func() string {
 	b := make([]byte, 6)
 	rand.Read(b)
 	encoded := base64.URLEncoding.EncodeToString(b)
@@ -239,7 +239,13 @@ func main() {
 	if rdb != nil {
 		defer rdb.Close()
 	}
+	r := setupRouter()
+	log.Println("Go service starting on :8000")
+	r.Run(":8000")
+}
 
+// setupRouter builds and returns the Gin router with middleware and routes.
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	// CORS middleware
@@ -260,6 +266,5 @@ func main() {
 	r.POST("/api/shorten", createShortURL)
 	r.GET("/:code", redirect)
 
-	log.Println("Go service starting on :8000")
-	r.Run(":8000")
+	return r
 }
